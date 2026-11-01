@@ -37,7 +37,7 @@ def get_satellite_tile_url(lat: float, lon: float, zoom: int = 16) -> str:
 
 
 # -----------------------------------------------------------------------------
-# CLEAN, MINIMAL DARK THEME CSS
+# INTERACTIVE 3D DEPTH, TOPOGRAPHIC GRID & GLASSMORPHISM THEME
 # -----------------------------------------------------------------------------
 def inject_custom_css():
     st.markdown(
@@ -46,12 +46,12 @@ def inject_custom_css():
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
 
         :root {
-            --bg-main: #0a0e14;
-            --bg-card: #111722;
-            --bg-subtle: #161e2c;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(16, 185, 129, 0.4);
-            --text-main: #f1f5f9;
+            --bg-main: #05080f;
+            --bg-card: rgba(13, 20, 33, 0.72);
+            --bg-subtle: rgba(8, 13, 23, 0.68);
+            --border-color: rgba(255, 255, 255, 0.11);
+            --border-hover: rgba(16, 185, 129, 0.65);
+            --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --text-dim: #64748b;
             --accent: #10b981;
@@ -59,32 +59,79 @@ def inject_custom_css():
 
         html, body, [class*="css"] {
             font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg-main);
             color: var(--text-main);
         }
 
         #MainMenu, footer {visibility: hidden;}
-        header {background: transparent !important;}
+        header, [data-testid="stHeader"] {background: transparent !important;}
 
+        /* Force inner Streamlit containers to be transparent so depth background shows through */
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"] {
+            background: transparent !important;
+        }
+
+        /* Multi-Layer Parallax Depth Photo + Glowing Geospatial Aura */
         .stApp {
-            background-color: var(--bg-main);
+            background-color: #05080f !important;
+            background-image:
+                radial-gradient(circle at 14% 18%, rgba(16, 185, 129, 0.24) 0%, transparent 42%),
+                radial-gradient(circle at 86% 22%, rgba(56, 189, 248, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 50% 88%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                linear-gradient(180deg, rgba(5, 8, 15, 0.72) 0%, rgba(5, 8, 15, 0.88) 55%, rgba(5, 8, 15, 0.95) 100%),
+                url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2000&q=85") !important;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
+        }
+
+        /* Animated 3D Perspective Geospatial Coordinate Grid Overlay */
+        .stApp::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(16, 185, 129, 0.065) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.065) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: radial-gradient(ellipse at 50% 35%, black 30%, transparent 82%);
+            -webkit-mask-image: radial-gradient(ellipse at 50% 35%, black 30%, transparent 82%);
+            pointer-events: none;
+            z-index: 0;
+            animation: gridBreath 9s ease-in-out infinite alternate;
+        }
+
+        @keyframes gridBreath {
+            0% { opacity: 0.55; transform: scale(1); }
+            100% { opacity: 0.95; transform: scale(1.025); }
+        }
+
+        .block-container {
+            position: relative;
+            z-index: 1;
         }
 
         section[data-testid="stSidebar"] {
-            background-color: #0d121b !important;
-            border-right: 1px solid var(--border-color);
+            background: rgba(8, 12, 21, 0.82) !important;
+            backdrop-filter: blur(22px) !important;
+            -webkit-backdrop-filter: blur(22px) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Top Navigation Header */
+        /* Frosted Glass Top Brand Header */
         .brand-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.1rem 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            padding: 1.15rem 1.5rem;
+            background: rgba(13, 20, 33, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 14px;
             margin-bottom: 1.25rem;
+            box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.75),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         .brand-title {
             font-size: 1.35rem;
@@ -100,6 +147,7 @@ def inject_custom_css():
             height: 9px;
             background-color: var(--accent);
             border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent);
             display: inline-block;
         }
         .brand-subtitle {
@@ -112,12 +160,13 @@ def inject_custom_css():
             font-size: 0.74rem;
             padding: 0.35rem 0.75rem;
             border-radius: 6px;
-            background: rgba(16, 185, 129, 0.12);
+            background: rgba(16, 185, 129, 0.16);
             color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.25);
+            border: 1px solid rgba(16, 185, 129, 0.38);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.18);
         }
 
-        /* Summary Metric Bar */
+        /* Interactive Glass Metric Boxes */
         .metric-strip {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -126,9 +175,19 @@ def inject_custom_css():
         }
         .metric-box {
             background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 0.9rem 1.1rem;
+            border-radius: 12px;
+            padding: 0.95rem 1.15rem;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.65),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .metric-box:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-hover);
+            box-shadow: 0 16px 34px -8px rgba(16, 185, 129, 0.22);
         }
         .metric-label {
             font-size: 0.72rem;
@@ -144,25 +203,34 @@ def inject_custom_css():
             color: var(--text-main);
         }
 
-        /* Unified Well-Mannered Property Card */
+        /* 3D Depth Property Card with Hover Lift & Image Zoom */
         .listing-card {
             background: var(--bg-card);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
-            transition: border-color 0.2s ease;
+            box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.78),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                        border-color 0.28s ease,
+                        box-shadow 0.28s ease;
             margin-bottom: 0.35rem;
         }
         .listing-card:hover {
+            transform: translateY(-6px);
             border-color: var(--border-hover);
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.88),
+                        0 0 28px -4px rgba(16, 185, 129, 0.26);
         }
 
-        /* Dual Fixed-Height Media Header (Satellite + Ground) */
+        /* Dual Fixed-Height Media Header with Smooth Zoom on Hover */
         .media-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2px;
-            background: #0a0e14;
+            background: rgba(5, 8, 15, 0.9);
             border-bottom: 1px solid var(--border-color);
         }
         .media-item {
@@ -175,23 +243,28 @@ def inject_custom_css():
             height: 100%;
             object-fit: cover;
             display: block;
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
+        }
+        .listing-card:hover .media-item img {
+            transform: scale(1.08);
+            filter: contrast(1.06) brightness(1.05);
         }
         .media-tag {
             position: absolute;
             bottom: 8px;
             left: 8px;
-            background: rgba(10, 14, 20, 0.82);
+            background: rgba(5, 8, 15, 0.84);
             color: #e2e8f0;
             font-size: 0.68rem;
             font-weight: 600;
             padding: 3px 8px;
-            border-radius: 4px;
+            border-radius: 5px;
             letter-spacing: 0.04em;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(6px);
         }
 
-        /* Card Content Body */
+        /* Card Body */
         .card-body {
             padding: 1.1rem 1.2rem;
         }
@@ -217,6 +290,7 @@ def inject_custom_css():
             font-weight: 700;
             color: #34d399;
             white-space: nowrap;
+            text-shadow: 0 0 14px rgba(52, 211, 153, 0.28);
         }
         .card-location {
             font-size: 0.82rem;
@@ -228,13 +302,13 @@ def inject_custom_css():
             text-overflow: ellipsis;
         }
 
-        /* Clean 3-Column Spec Strip */
+        /* 3-Column Spec Strip */
         .spec-strip {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0.5rem;
             background: var(--bg-subtle);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.07);
             border-radius: 8px;
             padding: 0.65rem 0.75rem;
             margin-bottom: 0.8rem;
@@ -255,13 +329,13 @@ def inject_custom_css():
             text-overflow: ellipsis;
         }
 
-        /* Card Footer Row */
+        /* Card Footer */
         .card-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding-top: 0.65rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             font-size: 0.76rem;
             color: var(--text-muted);
         }
@@ -609,7 +683,6 @@ def init_db():
             seed_listings,
         )
 
-    # Upgrade any existing Unsplash space/map placeholder URLs in existing DB to real Esri satellite tiles
     cur.execute("SELECT id, latitude, longitude, satellite_img FROM properties")
     for row_id, lat, lon, sat_url in cur.fetchall():
         if "unsplash.com" in sat_url:
@@ -686,12 +759,12 @@ def render_satellite_map(listings, height=360, zoom=7):
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <style>
-            body {{ margin: 0; padding: 0; background: #0a0e14; }}
+            body {{ margin: 0; padding: 0; background: #05080f; }}
             #map {{
                 width: 100%;
                 height: {height}px;
                 border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.1);
             }}
         </style>
     </head>
@@ -867,7 +940,7 @@ def render_auth_screen():
 
 
 # -----------------------------------------------------------------------------
-# BUYER DASHBOARD VIEW (CLEAN & WELL-MANNERED GRID)
+# BUYER DASHBOARD VIEW
 # -----------------------------------------------------------------------------
 def render_buyer_dashboard(user):
     all_props = fetch_all_properties()
@@ -970,7 +1043,6 @@ def render_buyer_dashboard(user):
         st.info("No land parcels match your filters. Try adjusting the price range or state filter.")
         return
 
-    # Render clean 2-column grid row-by-row so horizontal alignment is always locked
     for row_start in range(0, len(filtered), 2):
         row_items = filtered[row_start : row_start + 2]
         cols = st.columns(2, gap="medium")
@@ -986,7 +1058,6 @@ def render_buyer_dashboard(user):
                 price_per_sqft = (prop["price_lakhs"] * 100000.0) / max(prop["area_sqft"], 1.0)
                 featured_tag = '<span class="featured-tag">★ FEATURED</span>' if prop["is_featured"] else ""
 
-                # Self-contained, fixed-height card with side-by-side Satellite & Ground photos
                 render_html(
                     f"""
                     <div class="listing-card">
@@ -1031,7 +1102,6 @@ def render_buyer_dashboard(user):
                     """
                 )
 
-                # Single neat drawer under each card so the grid stays compact and aligned
                 with st.expander("📐 View Boundary Map & Contact Dealer"):
                     if prop["description"]:
                         st.caption(prop["description"])
